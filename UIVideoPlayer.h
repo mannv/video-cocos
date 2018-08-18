@@ -29,6 +29,7 @@
 
 #include "ui/UIWidget.h"
 
+
 /**
  * @addtogroup ui
  * @{
@@ -165,6 +166,8 @@ namespace experimental{
              * @return True if the video player is in full-screen mode, false otherwise.
              */
             virtual bool isFullScreenEnabled()const;
+            virtual void setWhiteBackground(bool bg)const;
+            virtual void setLoop(bool loop)const;
 
             /**
              * Register a callback to be invoked when the video state is updated.

@@ -77,6 +77,44 @@ static bool js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled
 }
 SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled)
 
+static bool js_cocos2dx_experimental_video_VideoPlayer_setWhiteBackgroundEnabled(se::State& s)
+{
+    cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_setWhiteBackgroundEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_setWhiteBackgroundEnabled : Error processing arguments");
+        cobj->setWhiteBackground(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_setWhiteBackgroundEnabled)
+
+static bool js_cocos2dx_experimental_video_VideoPlayer_setLoopEnabled(se::State& s)
+{
+    cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_experimental_video_VideoPlayer_setLoopEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_experimental_video_VideoPlayer_setLoopEnabled : Error processing arguments");
+        cobj->setLoop(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_experimental_video_VideoPlayer_setLoopEnabled)
+
 static bool js_cocos2dx_experimental_video_VideoPlayer_currentTime(se::State& s)
 {
     cocos2d::experimental::ui::VideoPlayer* cobj = (cocos2d::experimental::ui::VideoPlayer*)s.nativeThisObject();
@@ -378,6 +416,8 @@ bool js_register_cocos2dx_experimental_video_VideoPlayer(se::Object* obj)
     cls->defineFunction("getURL", _SE(js_cocos2dx_experimental_video_VideoPlayer_getURL));
     cls->defineFunction("play", _SE(js_cocos2dx_experimental_video_VideoPlayer_play));
     cls->defineFunction("setKeepAspectRatioEnabled", _SE(js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled));
+    cls->defineFunction("setWhiteBackgroundEnabled", _SE(js_cocos2dx_experimental_video_VideoPlayer_setWhiteBackgroundEnabled));
+    cls->defineFunction("setLoopEnabled", _SE(js_cocos2dx_experimental_video_VideoPlayer_setLoopEnabled));
     cls->defineFunction("currentTime", _SE(js_cocos2dx_experimental_video_VideoPlayer_currentTime));
     cls->defineFunction("stop", _SE(js_cocos2dx_experimental_video_VideoPlayer_stop));
     cls->defineFunction("setFullScreenEnabled", _SE(js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled));

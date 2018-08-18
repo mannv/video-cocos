@@ -29,7 +29,7 @@
 
 using namespace cocos2d::experimental::ui;
 //-------------------------------------------------------------------------------------
-
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "platform/ios/CCEAGLView-ios.h"
 #import <MediaPlayer/MediaPlayer.h>
 #include "base/CCDirector.h"
@@ -54,6 +54,10 @@ using namespace cocos2d::experimental::ui;
 - (void) setFullScreenEnabled:(BOOL) enabled;
 - (BOOL) isFullScreenEnabled;
 - (void) cleanup;
+- (void) addCloseButton;
+- (void) backToHomeScene;
+- (void) setWhiteBackground:(BOOL) enabled;
+- (void) setLoop:(BOOL) enabled;
 -(id) init:(void*) videoPlayer;
 
 -(void) videoFinished:(NSNotification*) notification;
@@ -92,6 +96,7 @@ using namespace cocos2d::experimental::ui;
         [self.moviePlayer stop];
         [self.moviePlayer.view removeFromSuperview];
         self.moviePlayer = nullptr;
+        [self removeCloseButton];
     }
 }
 
@@ -125,6 +130,7 @@ using namespace cocos2d::experimental::ui;
     _width = width;
     _top = top;
     _height = height;
+    NSLog(@"Video size: %d, %d, %d, %d", _left, _width, _top, _height);
     if (self.moviePlayer != nullptr) {
         [self.moviePlayer.view setFrame:CGRectMake(left, top, width, height)];
     }
@@ -154,6 +160,18 @@ using namespace cocos2d::experimental::ui;
         return NO;
 }
 
+-(void) setBackground:(bool)whiteBackground {
+    auto clearColor = [UIColor blackColor];
+    if(whiteBackground) {
+        clearColor = [UIColor whiteColor];
+    }
+    self.moviePlayer.backgroundView.backgroundColor = clearColor;
+    self.moviePlayer.view.backgroundColor = clearColor;
+    for (UIView * subView in self.moviePlayer.view.subviews) {
+        subView.backgroundColor = clearColor;
+    }
+}
+
 -(void) setURL:(int)videoSource :(std::string &)videoUrl
 {
     [self cleanup];
@@ -169,14 +187,8 @@ using namespace cocos2d::experimental::ui;
     self.moviePlayer.allowsAirPlay = NO;
     self.moviePlayer.controlStyle = MPMovieControlStyleNone;
     self.moviePlayer.view.userInteractionEnabled = YES;
-
-    auto clearColor = [UIColor clearColor];
-    self.moviePlayer.backgroundView.backgroundColor = clearColor;
-    self.moviePlayer.view.backgroundColor = clearColor;
-    for (UIView * subView in self.moviePlayer.view.subviews) {
-        subView.backgroundColor = clearColor;
-    }
-
+    [self setBackground:NO];
+    
     if (_keepRatioEnabled) {
         self.moviePlayer.scalingMode = MPMovieScalingModeAspectFit;
     } else {
@@ -186,7 +198,6 @@ using namespace cocos2d::experimental::ui;
     auto view = cocos2d::Director::getInstance()->getOpenGLView();
     auto eaglview = (CCEAGLView *) view->getEAGLView();
     [eaglview addSubview:self.moviePlayer.view];
-
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(videoFinished:)
@@ -219,6 +230,53 @@ using namespace cocos2d::experimental::ui;
     [singleFingerTap release];
 
 }
+-(void) setWhiteBackground:(BOOL) enabled {
+    NSLog(@"Vao den ham whiteBackground");
+    [self setBackground:enabled];
+}
+
+-(void) setLoop:(BOOL) enabled {
+    if(self.moviePlayer != nullptr) {
+        [self.moviePlayer setRepeatMode:(enabled ? MPMovieRepeatModeOne : MPMovieRepeatModeNone)];
+    }
+}
+
+-(void) addCloseButton {
+    UIWindow *rootView = [UIApplication sharedApplication].keyWindow;
+    CGSize sceneSize = rootView.frame.size;
+    UIImage *homeImg = [UIImage imageNamed:@"close_bt.png"];
+    UIImageView *homeButton = [[UIImageView alloc] initWithImage:homeImg];
+    
+    
+    float sc=sceneSize.height/800.0f;// 800 la size high cua screen
+    float size_w=50*sc;// 50 la size cua button tren cocos
+    float dtx=sc*110/2+size_w/2;// 110 la size cua canvas chua button(top left)
+    
+    
+    [homeButton setFrame:CGRectMake(sceneSize.width-dtx, dtx-size_w,size_w, size_w)];
+    
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(backToHomeScene)];
+    [homeButton setUserInteractionEnabled:YES];
+    [homeButton addGestureRecognizer:singleTap];
+    homeButton.tag=99822;
+    [rootView addSubview:homeButton];
+    [homeButton release];
+}
+
+-(void) removeCloseButton {
+    UIWindow *rootView = [UIApplication sharedApplication].keyWindow;
+    UIView *btview=[rootView viewWithTag:99822];
+    [btview removeFromSuperview];
+}
+-(void) backToHomeScene {
+    NSLog(@"===> backToHomeScene");
+    
+    std::string strjs="fn_CloseVideoAndGoHome()";
+    se::ScriptEngine::getInstance()->evalString(strjs.c_str());
+    
+    [self cleanup];
+}
+
 
 // this enables you to handle multiple recognizers on single view
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
@@ -242,6 +300,7 @@ using namespace cocos2d::experimental::ui;
         if([self.moviePlayer playbackState] != MPMoviePlaybackStateStopped)
         {
             _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::COMPLETED);
+            [self cleanup];
         }
     }
 }
@@ -326,6 +385,9 @@ using namespace cocos2d::experimental::ui;
     if (self.moviePlayer != NULL) {
         [self.moviePlayer.view setFrame:CGRectMake(_left, _top, _width, _height)];
         [self.moviePlayer play];
+        if (![self isFullScreenEnabled]) {
+            [self addCloseButton];
+        }
     }
 }
 
@@ -410,17 +472,16 @@ void VideoPlayer::draw(Renderer* renderer, const Mat4 &transform, uint32_t flags
         auto frameSize = glView->getFrameSize();
         auto scaleFactor = [static_cast<CCEAGLView *>(glView->getEAGLView()) contentScaleFactor];
 
-        auto winSize = directorInstance->getWinSize();
+        auto leftBottom = Vec2(0,0);
+        auto rightTop = Vec2(1420, 800);
 
-        auto leftBottom = convertToWorldSpace(Vec2::ZERO);
-        auto rightTop = convertToWorldSpace(Vec2(_contentSize.width,_contentSize.height));
-
-        auto uiLeft = (frameSize.width / 2 + (leftBottom.x - winSize.width / 2 ) * glView->getScaleX()) / scaleFactor;
-        auto uiTop = (frameSize.height /2 - (rightTop.y - winSize.height / 2) * glView->getScaleY()) / scaleFactor;
-
-        [((UIVideoViewWrapperIos*)_videoView) setFrame :uiLeft :uiTop
-                                                          :(rightTop.x - leftBottom.x) * glView->getScaleX() / scaleFactor
-                                                          :( (rightTop.y - leftBottom.y) * glView->getScaleY()/scaleFactor)];
+        auto uiLeft = 0;
+        auto uiTop = 0;
+        
+        auto height = ceil((rightTop.y - leftBottom.y) * glView->getScaleY() / scaleFactor);
+        auto width = ceil((frameSize.width/frameSize.height) * height);
+        
+        [((UIVideoViewWrapperIos*)_videoView) setFrame :uiLeft :uiTop :width :height];
     }
 
 #if CC_VIDEOPLAYER_DEBUG_DRAW
@@ -440,6 +501,16 @@ void VideoPlayer::draw(Renderer* renderer, const Mat4 &transform, uint32_t flags
 bool VideoPlayer::isFullScreenEnabled()const
 {
     return [((UIVideoViewWrapperIos*)_videoView) isFullScreenEnabled];
+}
+
+void VideoPlayer::setWhiteBackground(bool bg)const
+{
+    [((UIVideoViewWrapperIos*)_videoView) setWhiteBackground:bg];
+}
+
+void VideoPlayer::setLoop(bool loop)const
+{
+    [((UIVideoViewWrapperIos*)_videoView) setLoop:loop];
 }
 
 void VideoPlayer::setFullScreenEnabled(bool enabled)
