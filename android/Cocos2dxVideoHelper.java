@@ -238,15 +238,9 @@ public class Cocos2dxVideoHelper {
             view.stopPlayback();
             sVideoViews.remove(index);
             mLayout.removeView(view);
-        }
 
-        View closeVideoView = sCloseButtonViews.get(index);
-        if(closeVideoView != null) {
-            Log.d(TAG, "remove closeVideoView --- " + index);
-            sCloseButtonViews.remove(index);
-            mLayout.removeView(closeVideoView);
+            removeAllCloseButton();
         }
-
     }
 
     public static void setVideoUrl(int index, int videoSource, String videoUrl) {
@@ -565,14 +559,21 @@ public class Cocos2dxVideoHelper {
         btn.setScaleY(0.5f);
     }
 
-    public void gotoMainScene() {
+    private void removeAllCloseButton() {
         //xoa het tat ca cut close neu co
         for(int i = 0; i < sCloseButtonViews.size(); i++) {
             int key = sCloseButtonViews.keyAt(i);
             // get the object by the key.
             View v = sCloseButtonViews.get(key);
-            mLayout.removeView(v);
+            if(v != null) {
+                sCloseButtonViews.removeAt(i);
+                mLayout.removeView(v);
+            }
         }
+    }
+
+    public void gotoMainScene() {
+        removeAllCloseButton();
 
         //goi ve ham close video tren file main.js
         mActivity.runOnGLThread(new Runnable() {
