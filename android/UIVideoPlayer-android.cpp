@@ -89,7 +89,7 @@ VideoPlayer::VideoPlayer()
 VideoPlayer::~VideoPlayer()
 {
     s_allVideoPlayers.erase(_videoPlayerIndex);
-    JniHelper::callStaticVoidMethod(videoHelperClassName, "removeVideoWidget", _videoPlayerIndex);
+    JniHelper::callStaticVoidMethod(videoHelperClassName, "createVideoWidget", _videoPlayerIndex);
 }
 
 void VideoPlayer::setFileName(const std::string& fileName)
@@ -149,6 +149,14 @@ void VideoPlayer::setFullScreenEnabled(bool enabled)
 bool VideoPlayer::isFullScreenEnabled()const
 {
     return _fullScreenEnabled;
+}
+
+void VideoPlayer::setWhiteBackground(bool bg)const {
+    JniHelper::callStaticVoidMethod(videoHelperClassName, "setWhiteBackgroundEnabled", _videoPlayerIndex, bg);
+}
+
+void VideoPlayer::setLoop(bool bg)const {
+    JniHelper::callStaticVoidMethod(videoHelperClassName, "setLoopEnabled", _videoPlayerIndex, bg);
 }
 
 void VideoPlayer::setKeepAspectRatioEnabled(bool enable)

@@ -1,26 +1,26 @@
 /****************************************************************************
-Copyright (c) 2010-2013 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2010-2013 cocos2d-x.org
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
 
-http://www.cocos2d-x.org
+ http://www.cocos2d-x.org
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  ****************************************************************************/
 package org.cocos2dx.lib;
 
@@ -63,10 +63,10 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     // ===========================================================
     // Fields
     // ===========================================================
-    
+
     private Cocos2dxGLSurfaceView mGLSurfaceView = null;
     private int[] mGLContextAttrs = null;
-    private Cocos2dxHandler mHandler = null;   
+    private Cocos2dxHandler mHandler = null;
     private static Cocos2dxActivity sContext = null;
     private Cocos2dxVideoHelper mVideoHelper = null;
     private Cocos2dxWebViewHelper mWebViewHelper = null;
@@ -90,7 +90,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
         }
 
         private int findConfigAttrib(EGL10 egl, EGLDisplay display,
-                EGLConfig config, int attribute, int defaultValue) {
+                                     EGLConfig config, int attribute, int defaultValue) {
             int[] value = new int[1];
             if (egl.eglGetConfigAttrib(display, config, attribute, value)) {
                 return value[0];
@@ -166,7 +166,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
         }
 
         @Override
-        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) 
+        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display)
         {
             int[] EGLattribs = {
                     EGL10.EGL_RED_SIZE, configAttribs[0],
@@ -281,16 +281,16 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
         sContext = this;
         this.mHandler = new Cocos2dxHandler(this);
-        
+
         Cocos2dxHelper.init(this);
-        
+
         this.mGLContextAttrs = getGLContextAttrs();
         this.init();
 
         if (mVideoHelper == null) {
             mVideoHelper = new Cocos2dxVideoHelper(this, mFrameLayout);
         }
-        
+
         if(mWebViewHelper == null){
             mWebViewHelper = new Cocos2dxWebViewHelper(mFrameLayout);
         }
@@ -306,7 +306,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
     //native method,call GLViewImpl::getGLContextAttrs() to get the OpenGL ES context attributions
     private static native int[] getGLContextAttrs();
-    
+
     // ===========================================================
     // Getter & Setter
     // ===========================================================
@@ -317,18 +317,19 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
     @Override
     protected void onResume() {
-    	Log.d(TAG, "onResume()");
+        Log.d(TAG, "onResume()");
         super.onResume();
-        Cocos2dxAudioFocusManager.registerAudioFocusListener(this);
+//        Cocos2dxAudioFocusManager.registerAudioFocusListener(this);
         this.hideVirtualButton();
-       	resumeIfHasFocus();
+        resumeIfHasFocus();
+        this.resumeVideo();
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-    	Log.d(TAG, "onWindowFocusChanged() hasFocus=" + hasFocus);
+        Log.d(TAG, "onWindowFocusChanged() hasFocus=" + hasFocus);
         super.onWindowFocusChanged(hasFocus);
-        
+
         this.hasFocus = hasFocus;
         resumeIfHasFocus();
     }
@@ -345,14 +346,14 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     protected void onPause() {
         Log.d(TAG, "onPause()");
         super.onPause();
-        Cocos2dxAudioFocusManager.unregisterAudioFocusListener(this);
+//        Cocos2dxAudioFocusManager.unregisterAudioFocusListener(this);
         Cocos2dxHelper.onPause();
         mGLSurfaceView.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        Cocos2dxAudioFocusManager.unregisterAudioFocusListener(this);
+//        Cocos2dxAudioFocusManager.unregisterAudioFocusListener(this);
         CAAgent.onDestroy();
         super.onDestroy();
 
@@ -369,7 +370,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
         msg.obj = new Cocos2dxHandler.DialogMessage(pTitle, pMessage);
         this.mHandler.sendMessage(msg);
     }
-    
+
     @Override
     public void runOnGLThread(final Runnable pRunnable) {
         this.mGLSurfaceView.queueEvent(pRunnable);
@@ -391,11 +392,11 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     // Methods
     // ===========================================================
     public void init() {
-        
+
         // FrameLayout
         ViewGroup.LayoutParams framelayout_params =
-            new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                       ViewGroup.LayoutParams.MATCH_PARENT);
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT);
 
         mFrameLayout = new ResizeLayout(this);
 
@@ -403,8 +404,8 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
         // Cocos2dxEditText layout
         ViewGroup.LayoutParams edittext_layout_params =
-            new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                       ViewGroup.LayoutParams.WRAP_CONTENT);
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
         Cocos2dxEditBox edittext = new Cocos2dxEditBox(this);
         edittext.setLayoutParams(edittext_layout_params);
 
@@ -419,7 +420,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
 
         // Switch to supported OpenGL (ARGB888) mode on emulator
         if (isAndroidEmulator())
-           this.mGLSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+            this.mGLSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 
         this.mGLSurfaceView.setCocos2dxRenderer(new Cocos2dxRenderer());
         this.mGLSurfaceView.setCocos2dxEditText(edittext);
@@ -466,20 +467,33 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
         }
     }
 
-   private final static boolean isAndroidEmulator() {
-      String model = Build.MODEL;
-      Log.d(TAG, "model=" + model);
-      String product = Build.PRODUCT;
-      Log.d(TAG, "product=" + product);
-      boolean isEmulator = false;
-      if (product != null) {
-         isEmulator = product.equals("sdk") || product.contains("_sdk") || product.contains("sdk_");
-      }
-      Log.d(TAG, "isEmulator=" + isEmulator);
-      return isEmulator;
-   }
+    private final static boolean isAndroidEmulator() {
+        String model = Build.MODEL;
+        Log.d(TAG, "model=" + model);
+        String product = Build.PRODUCT;
+        Log.d(TAG, "product=" + product);
+        boolean isEmulator = false;
+        if (product != null) {
+            isEmulator = product.equals("sdk") || product.contains("_sdk") || product.contains("sdk_");
+        }
+        Log.d(TAG, "isEmulator=" + isEmulator);
+        return isEmulator;
+    }
 
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================
+
+    /**
+     * TODO: mannv
+     * ham nay de close video
+     */
+
+    public void resumeVideo() {
+        mVideoHelper.reloadScreenIfExistVideo();
+    }
+
+    public void closeVideo(View view) {
+        mVideoHelper.gotoMainScene();
+    }
 }
