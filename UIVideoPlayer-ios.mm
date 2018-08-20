@@ -38,6 +38,7 @@ using namespace cocos2d::experimental::ui;
 @interface UIVideoViewWrapperIos : NSObject<UIGestureRecognizerDelegate>
 
 @property (strong,nonatomic) MPMoviePlayerController * moviePlayer;
+@property (nonatomic,assign) BOOL isFullScren;
 
 - (void) setFrame:(int) left :(int) top :(int) width :(int) height;
 - (void) setURL:(int) videoSource :(std::string&) videoUrl;
@@ -138,9 +139,7 @@ using namespace cocos2d::experimental::ui;
 
 -(void) setFullScreenEnabled:(BOOL) enabled
 {
-    if (self.moviePlayer != nullptr) {
-        [self.moviePlayer setFullscreen:enabled animated:NO];
-    }
+    self.isFullScren = enabled;
 }
 
 -(BOOL) isFullScreenEnabled
@@ -195,9 +194,8 @@ using namespace cocos2d::experimental::ui;
         self.moviePlayer.scalingMode = MPMovieScalingModeFill;
     }
 
-    auto view = cocos2d::Director::getInstance()->getOpenGLView();
-    auto eaglview = (CCEAGLView *) view->getEAGLView();
-    [eaglview addSubview:self.moviePlayer.view];
+    UIWindow *rootView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];
+    [rootView addSubview:self.moviePlayer.view];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(videoFinished:)
@@ -242,7 +240,8 @@ using namespace cocos2d::experimental::ui;
 }
 
 -(void) addCloseButton {
-    UIWindow *rootView = [UIApplication sharedApplication].keyWindow;
+//    UIWindow *rootView = [UIApplication sharedApplication].keyWindow;
+    UIWindow *rootView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];
     CGSize sceneSize = rootView.frame.size;
     UIImage *homeImg = [UIImage imageNamed:@"close_bt.png"];
     UIImageView *homeButton = [[UIImageView alloc] initWithImage:homeImg];
@@ -385,7 +384,7 @@ using namespace cocos2d::experimental::ui;
     if (self.moviePlayer != NULL) {
         [self.moviePlayer.view setFrame:CGRectMake(_left, _top, _width, _height)];
         [self.moviePlayer play];
-        if (![self isFullScreenEnabled]) {
+        if (!self.isFullScren) {
             [self addCloseButton];
         }
     }
