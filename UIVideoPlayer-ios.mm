@@ -57,8 +57,6 @@ using namespace cocos2d::experimental::ui;
 - (void) cleanup;
 - (void) addCloseButton;
 - (void) backToHomeScene;
-- (void) setWhiteBackground:(BOOL) enabled;
-- (void) setLoop:(BOOL) enabled;
 -(id) init:(void*) videoPlayer;
 
 -(void) videoFinished:(NSNotification*) notification;
@@ -226,22 +224,14 @@ using namespace cocos2d::experimental::ui;
 
     singleFingerTap.delegate = self;
     [singleFingerTap release];
-
-}
--(void) setWhiteBackground:(BOOL) enabled {
-    NSLog(@"Vao den ham whiteBackground");
-    [self setBackground:enabled];
-}
-
--(void) setLoop:(BOOL) enabled {
-    if(self.moviePlayer != nullptr) {
-        [self.moviePlayer setRepeatMode:(enabled ? MPMovieRepeatModeOne : MPMovieRepeatModeNone)];
-    }
 }
 
 -(void) addCloseButton {
-//    UIWindow *rootView = [UIApplication sharedApplication].keyWindow;
     UIWindow *rootView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];
+    UIView *viewCheck = [rootView viewWithTag:99822];
+    if(viewCheck) {
+        return;
+    }
     CGSize sceneSize = rootView.frame.size;
     UIImage *homeImg = [UIImage imageNamed:@"close_bt.png"];
     UIImageView *homeButton = [[UIImageView alloc] initWithImage:homeImg];
@@ -263,17 +253,14 @@ using namespace cocos2d::experimental::ui;
 }
 
 -(void) removeCloseButton {
-    UIWindow *rootView = [UIApplication sharedApplication].keyWindow;
+    UIWindow *rootView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];
     UIView *btview=[rootView viewWithTag:99822];
     [btview removeFromSuperview];
 }
 -(void) backToHomeScene {
-    NSLog(@"===> backToHomeScene");
-    
+    [self cleanup];
     std::string strjs="fn_CloseVideoAndGoHome()";
     se::ScriptEngine::getInstance()->evalString(strjs.c_str());
-    
-    [self cleanup];
 }
 
 
@@ -298,8 +285,7 @@ using namespace cocos2d::experimental::ui;
     {
         if([self.moviePlayer playbackState] != MPMoviePlaybackStateStopped)
         {
-            _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::COMPLETED);
-            [self cleanup];
+            _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::COMPLETED);            
         }
     }
 }
@@ -500,16 +486,6 @@ void VideoPlayer::draw(Renderer* renderer, const Mat4 &transform, uint32_t flags
 bool VideoPlayer::isFullScreenEnabled()const
 {
     return [((UIVideoViewWrapperIos*)_videoView) isFullScreenEnabled];
-}
-
-void VideoPlayer::setWhiteBackground(bool bg)const
-{
-    [((UIVideoViewWrapperIos*)_videoView) setWhiteBackground:bg];
-}
-
-void VideoPlayer::setLoop(bool loop)const
-{
-    [((UIVideoViewWrapperIos*)_videoView) setLoop:loop];
 }
 
 void VideoPlayer::setFullScreenEnabled(bool enabled)
