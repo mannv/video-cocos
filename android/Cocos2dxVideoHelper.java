@@ -63,8 +63,6 @@ public class Cocos2dxVideoHelper {
     }
 
     private static int videoTag = 0;
-    private static boolean videoLoopingEnable = false;
-    private static boolean whiteBackgroundEnabled = false;
     private static boolean videoFullScreen = false;
     private final static int VideoTaskCreate = 0;
     private final static int VideoTaskRemove = 1;
@@ -79,6 +77,7 @@ public class Cocos2dxVideoHelper {
     private final static int VideoTaskRestart = 10;
     private final static int VideoTaskKeepRatio = 11;
     private final static int VideoTaskFullScreen = 12;
+    private final static int RemoveAllCloseButton = 13;
     final static int KeyEventBack = 1000;
 
     static class VideoHandler extends Handler {
@@ -92,6 +91,10 @@ public class Cocos2dxVideoHelper {
         public void handleMessage(Message msg) {
             Cocos2dxVideoHelper helper = mReference.get();
             switch (msg.what) {
+                case RemoveAllCloseButton: {
+                    helper.removeAllCloseButton();
+                    break;
+                }
                 case VideoTaskCreate: {
                     helper._createVideoView(msg.arg1);
                     break;
@@ -181,11 +184,6 @@ public class Cocos2dxVideoHelper {
 
         @Override
         public void run() {
-            if (mVideoEvent == 3 && !videoLoopingEnable) {
-                removeVideoWidget(mVideoTag);
-            } else {
-                removeVideoWidget(mVideoTag - 1);
-            }
             nativeExecuteVideoCallback(mVideoTag, mVideoEvent);
         }
 
@@ -545,6 +543,7 @@ public class Cocos2dxVideoHelper {
             Log.d(TAG, "Khi video duoc phat o che do full man hinh thi se ko co nut close");
             return;
         }
+        removeAllCloseButton();
 
         View closeVideoView = (View) LayoutInflater.from(mActivity).inflate(R.layout.close_video, null);
         if (closeVideoView == null) {
@@ -559,13 +558,19 @@ public class Cocos2dxVideoHelper {
         btn.setScaleY(0.5f);
     }
 
+    public static void removeCloseButton() {
+        Message msg = new Message();
+        msg.what = RemoveAllCloseButton;
+        mVideoHandler.sendMessage(msg);
+    }
+
     private void removeAllCloseButton() {
         //xoa het tat ca cut close neu co
-        for(int i = 0; i < sCloseButtonViews.size(); i++) {
+        for (int i = 0; i < sCloseButtonViews.size(); i++) {
             int key = sCloseButtonViews.keyAt(i);
             // get the object by the key.
             View v = sCloseButtonViews.get(key);
-            if(v != null) {
+            if (v != null) {
                 sCloseButtonViews.removeAt(i);
                 mLayout.removeView(v);
             }
@@ -582,13 +587,5 @@ public class Cocos2dxVideoHelper {
                 Cocos2dxJavascriptJavaBridge.evalString("fn_CloseVideoAndGoHome()");
             }
         });
-    }
-
-    public static void setWhiteBackgroundEnabled(int index, boolean enable) {
-        whiteBackgroundEnabled = enable;
-    }
-
-    public static void setLoopEnabled(int index, boolean enable) {
-        videoLoopingEnable = enable;
     }
 }
