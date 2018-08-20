@@ -18,6 +18,12 @@ sau khi build lại libs nó sẽ sinh ra ở thư mục này
 
 # Cài đặt
 
+Phải add thêm 2 thư viện vào project
+```
+CoreMedia.framework
+AVKit.framework
+```
+
 ## Cài đặt cho toàn bộ các project
 
 copy thư mục *ios* vào thư mục
@@ -43,5 +49,7 @@ và nó ko thể phát video ở thư mục Documents của ứng dụng
 > The MPMoviePlayerController class is formally deprecated in iOS 9. (The MPMoviePlayerViewController class is also formally deprecated.) To play video content in iOS 9 and later, instead use the AVPictureInPictureController or AVPlayerViewController class from the AVKit framework, or the WKWebView class from WebKit.
 
 Hiện đã có bug và đã có giải pháp thay thế
+
 issue: https://github.com/cocos2d/cocos2d-x/issues/17887
+
 giải pháp: https://github.com/cocos2d/cocos2d-x/pull/18467
