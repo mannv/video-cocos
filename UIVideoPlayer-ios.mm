@@ -134,6 +134,9 @@ using namespace cocos2d::experimental::ui;
     if(_videoPlayer != nullptr) {
         [self removeCloseButton];
         _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::COMPLETED);
+        if (self.isFullScren) {
+            [self destroyMoviePlayer];
+        }
     }
 }
 
