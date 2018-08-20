@@ -132,8 +132,8 @@ using namespace cocos2d::experimental::ui;
 -(void) videoFinished:(NSNotification *)notification
 {
     if(_videoPlayer != nullptr) {
-        _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::COMPLETED);
         [self removeCloseButton];
+        _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::COMPLETED);
     }
 }
 
@@ -168,11 +168,11 @@ using namespace cocos2d::experimental::ui;
 {
     if (self.moviePlayer != nullptr)
     {
-        [self.moviePlayer.view setFrame:CGRectMake(_left, _top, _width, _height)];
-        [self.moviePlayer.player play];
         if (!self.isFullScren) {
             [self addCloseButton];
         }
+        [self.moviePlayer.view setFrame:CGRectMake(_left, _top, _width, _height)];
+        [self.moviePlayer.player play];
         _paused = false;
         _currentTime = CMTimeMake(0, 100);
     }
@@ -213,15 +213,15 @@ using namespace cocos2d::experimental::ui;
     {
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:self.moviePlayer.player.currentItem];
         
-        if(self._notificationHandle) {
-            [[NSNotificationCenter defaultCenter] removeObserver:self._notificationHandle];
-        }
+        [[NSNotificationCenter defaultCenter] removeObserver:self._notificationHandle];
         // It is more reasonable to invoke `stop` here, but because `stop` will invoke `destroyMoviePlayer` to real stop the video
         // so inoke `pause` here.
         [self pause];
         [self.moviePlayer.view removeFromSuperview];
         self.moviePlayer = nullptr;
         [self removeCloseButton];
+        
+        NSLog(@"----> destroyMoviePlayer");
     }
 }
 
@@ -232,12 +232,15 @@ using namespace cocos2d::experimental::ui;
 }
 
 -(void) addCloseButton {
-    [self removeCloseButton];
     UIWindow *rootView = [self getRootView];
+    UIView *btview=[rootView viewWithTag:99822];
+    if(btview) {
+        NSLog(@"Da tao nut close roi");
+        return;
+    }
     CGSize sceneSize = rootView.frame.size;
     UIImage *homeImg = [UIImage imageNamed:@"close_bt.png"];
     UIImageView *homeButton = [[UIImageView alloc] initWithImage:homeImg];
-    
     
     float sc=sceneSize.height/800.0f;// 800 la size high cua screen
     float size_w=50*sc;// 50 la size cua button tren cocos
@@ -245,7 +248,6 @@ using namespace cocos2d::experimental::ui;
     
     
     [homeButton setFrame:CGRectMake(sceneSize.width-dtx, dtx-size_w,size_w, size_w)];
-    
     UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(backToHomeScene)];
     [homeButton setUserInteractionEnabled:YES];
     [homeButton addGestureRecognizer:singleTap];
@@ -255,6 +257,7 @@ using namespace cocos2d::experimental::ui;
 }
 
 -(void) removeCloseButton {
+    NSLog(@"--> removeCloseButton");
     UIWindow *rootView = [self getRootView];
     UIView *btview=[rootView viewWithTag:99822];
     [btview removeFromSuperview];
@@ -270,7 +273,7 @@ using namespace cocos2d::experimental::ui;
     [self destroyMoviePlayer];
     
     self.moviePlayer = [[AVPlayerViewController alloc] init];
-    self.moviePlayer.view.userInteractionEnabled = true;
+    self.moviePlayer.view.userInteractionEnabled = NO;
     self.moviePlayer.player = [AVPlayer playerWithURL: _url];
     self.moviePlayer.showsPlaybackControls = NO;
     
@@ -284,7 +287,8 @@ using namespace cocos2d::experimental::ui;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoFinished:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.moviePlayer.player.currentItem];
     
-    self._notificationHandle = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification object:[UIApplication sharedApplication] queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+    
+    self._notificationHandle = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification object:[UIApplication sharedApplication] queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         [self play];
     }];
     
