@@ -16,7 +16,7 @@ sau khi build lại libs nó sẽ sinh ra ở thư mục này
 /Applications/CocosCreator.app/Contents/Resources/cocos2d-x/prebuilt/ios
 ```
 
-# Cài đạt
+# Cài đặt
 
 ## Cài đặt cho toàn bộ các project
 
@@ -29,3 +29,8 @@ từ nay về sau các project được build dạng *binary* nó sẽ lấy lib
 
 ## Cài đặt cho project đơn lẻ
 Sau khi build project từ *cocos creator* mở = xcode rồi kéo 2 file *libcocos2d iOS.a, libjscocos2d iOS.a* vào thư mục *ios-libs* 
+
+HOÀN TẤT QUÁ TRÌNH CÀI ĐẶT
+
+lấy libs build sẵn + project demo ở đây:
+https://drive.google.com/drive/u/0/folders/1YwH2Myg_tb9CwpJVPQ0HJA_3c5pwqezO
