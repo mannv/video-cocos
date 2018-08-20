@@ -34,3 +34,14 @@ HOÀN TẤT QUÁ TRÌNH CÀI ĐẶT
 
 lấy libs build sẵn + project demo ở đây:
 https://drive.google.com/drive/u/0/folders/1YwH2Myg_tb9CwpJVPQ0HJA_3c5pwqezO
+
+
+# Note
+*cocos creator* hiện đang sử dụng *MPMoviePlayerController* để phát video, nó không được sử dụng trong iOS 9 nữa
+và nó ko thể phát video ở thư mục Documents của ứng dụng
+
+> The MPMoviePlayerController class is formally deprecated in iOS 9. (The MPMoviePlayerViewController class is also formally deprecated.) To play video content in iOS 9 and later, instead use the AVPictureInPictureController or AVPlayerViewController class from the AVKit framework, or the WKWebView class from WebKit.
+
+Hiện đã có bug và đã có giải pháp thay thế
+issue: https://github.com/cocos2d/cocos2d-x/issues/17887
+giải pháp: https://github.com/cocos2d/cocos2d-x/pull/18467
