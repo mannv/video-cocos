@@ -18,39 +18,12 @@ sau khi build lại libs nó sẽ sinh ra ở thư mục này
 
 # Cài đặt
 
-```
-thực chất thằng *cocos creator* build android nó ko sử dụng file libs thì phải
-```
-
-1. mở *cocos2d_libs.xcodeproj*
-```
-/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/build/cocos2d_libs.xcodeproj
-```
-
-replace 3 file sau vào đúng vị trí
-```
-- UIVideoPlayer-android.cpp
-- UIVideoPlayer.h
-- UIVideoPlayer-ios.mm
-```
-
-2. mở *cocos2d_js_bindings.xcodeproj*
-```
-/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/cocos/scripting/js-bindings/proj.ios_mac/cocos2d_js_bindings.xcodeproj
-```
-
-replace 2 file sau đúng vị trí
-```
-- jsb_cocos2dx_experimental_video_auto.cpp
-- jsb_cocos2dx_experimental_video_auto.hpp
-```
-
-3. sau khi build project từ *cocos creator* chạy compile lần đầu
+1. sau khi build project từ *cocos creator* chạy compile lần đầu
 ```
 cocos compile -p android --android-studio --no-apk
 ```
 
-4. mở project = *android studio*
+2. mở project = *android studio*
 
 - replace các file sau ở trong projects *libcocos2dx*
 ```
