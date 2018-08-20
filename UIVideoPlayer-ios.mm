@@ -227,11 +227,7 @@ using namespace cocos2d::experimental::ui;
 }
 
 -(void) addCloseButton {
-    UIWindow *rootView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];
-    UIView *viewCheck = [rootView viewWithTag:99822];
-    if(viewCheck) {
-        return;
-    }
+    UIWindow *rootView = [[[[UIApplication sharedApplication] keyWindow] subviews] lastObject];    
     CGSize sceneSize = rootView.frame.size;
     UIImage *homeImg = [UIImage imageNamed:@"close_bt.png"];
     UIImageView *homeButton = [[UIImageView alloc] initWithImage:homeImg];
@@ -285,7 +281,8 @@ using namespace cocos2d::experimental::ui;
     {
         if([self.moviePlayer playbackState] != MPMoviePlaybackStateStopped)
         {
-            _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::COMPLETED);            
+            _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::COMPLETED);
+            [self removeCloseButton];
         }
     }
 }
